@@ -1,0 +1,143 @@
+<html>
+<head>
+    <title>Dashboard - Auto Triage System</title>
+    <meta charset="UTF-8">
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <script>
+    var app = angular.module('App', []);
+
+    app.controller('Ctrl', function($scope, $interval, $http) {
+
+        $scope.lang = {
+            "actions": {
+                "TAKE_REST": "稍作休息",
+                "PAIN_KILLER": "領取止痛藥",
+                "ICE_PATCH": "領取冰袋",
+                "HEAT_PACK": "領取暖包"
+            },
+            "symptoms": {
+                "headache": "頭痛",
+                "stomachache": "胃痛",
+                "diarrhea": "腹瀉",
+                "hot": "發熱",
+                "cold": "發冷",
+                "fever": "發燒",
+                "dizzy": "頭暈",
+                "pain": "疼痛",
+                "throw up": "嘔吐",
+                "tired": "疲倦"
+            }
+        }
+
+        $scope.Translate = function (a, t){
+            if(a[t]) return a[t]; else return t;
+        };
+
+        $scope.refresh = function() {
+            $scope.loading = true;
+            document.body.style.cursor='wait';
+            $http.get("queue.json?_ts="+Date.now())
+            .then(function (response){
+                $scope.loading = false;
+                document.body.style.cursor='default';
+                $scope.records = response.data;
+            });
+        };
+
+        $scope.intervalPromise = $interval(function(){
+            $scope.refresh();
+        }, 5000);
+
+        // initial load of data
+        $scope.refresh();
+    });
+
+    $(document).ready(function(){
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('.modal').modal();
+        document.getElementsByTagName('html')[0].style.zoom = "90%";
+    });
+    </script>
+</head>
+
+<body ng-app="App">
+    <div class="container-fluid" ng-controller="Ctrl">
+        <div class="progress" style="margin-top: 0px; margin-bottom: 0px;">
+            <div class="indeterminate" ng-show="loading"></div>
+            <div class="determinate" style="width: 100%" ng-show="!loading"></div>
+        </div>
+        <nav>
+            <div class="nav-wrapper">
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="index.html">Triage Dashboard</a></li>
+                    <li><a href="index-nurse.html">Nurse Dashboard</a></li>
+                    <li><a href="recognition.html">Face Recogntion</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container-fluid">
+            <ul class="collection">
+                <li class="collection-item">
+                    <table class="striped bordered responsive-table">
+                        <thead>
+                            <tr>
+                                <th class="center-align">香港身份證<br />HKID</th>
+                                <th class="center-align">嚴重性<br />Seriouesness</th>
+                                <th class="center-align">登記時間<br />Register Time</th>
+                                <th class="center-align">過去患病記錄<br />Medical History</th>
+                                <th class="center-align">病徵<br />Symptoms</th>
+                                <th class="center-align">建議行動<br />Recommanded Action</th>
+                                <th class="center-align">維生指數<br />Vitals</th>
+                                <th class="center-align">登記時表情<br />Emotions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="r in records | orderBy: '-seriousness'" ng-class="{'grey':$index === 0,'grey lighten-1':$index === 1,'grey lighten-2':$index === 2}">
+                                <td class="center-align"><span class="waves-effect waves-light btn">{{r.id_number}}</span></td>
+                                <td class="center-align"><span class="waves-effect waves-light btn">{{r.seriousness}}</span></td>
+                                <td class="center-align"><span class="waves-effect waves-light btn">{{r.createDT | date:'h:mm a'}}</span></td>
+                                <td class="center-align">
+                                    <span class="waves-effect waves-light red darken-4 btn" ng-show="r.medicalHistory.haveHeartIssues">心血管病</span>
+                                    <span class="waves-effect waves-light red darken-4 btn" ng-show="r.medicalHistory.haveBloodIssues">血液相關病症</span>
+                                    <span class="waves-effect waves-light red darken-4 btn" ng-show="r.medicalHistory.haveAllergy">食物 / 藥物過敏</span>
+                                    <span class="waves-effect waves-light red darken-4 btn" ng-show="r.medicalHistory.haveLongTermDisease">長期病患者</span>
+                                </td>
+                                <td class="center-align">
+                                    <span ng-repeat="symptom in r.symptoms" class="waves-effect waves-light indigo darken-4 btn">{{ Translate(lang.symptoms, symptom) }}</span>
+                                </td>
+                                <td class="center-align"><span class="waves-effect waves-light btn">{{ Translate(lang.actions, r.action) }}</span></td>
+                                <td class="center-align">
+                                    <span ng-show="r.vital.bodyTemperature" class="waves-effect waves-light btn" ng-class="{'red darken-4':r.vital.bodyTemperature > 37.5,'blue lighten-1':r.vital.bodyTemperature < 28}">體溫 Body Temp: {{r.vital.bodyTemperature}}°C</span>
+                                    <span ng-show="r.vital.spO2" class="waves-effect waves-light btn" ng-class="{true: 'red darken-4', false: ''}[r.vital.spO2 < 90]">血氧 spO2: {{r.vital.spO2}}%</span>
+                                    <span ng-show="r.vital.bpUp" class="waves-effect waves-light btn">血壓 BP: {{r.vital.bpUp}}/{{r.vital.bpDown}}</span>
+                                    <span ng-show="r.vital.heartrate" class="waves-effect waves-light btn">❤ {{r.vital.heartrate}} BPM 每分鐘</span>
+                                </td>
+                                <td>
+                                    <span ng-show="r.emotions" ng-repeat="e in r.emotions" class="waves-effect waves-light btn">{{e.type}}</span>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </li>
+            </ul>
+        </div>
+    </div>
+</body>
+</html>

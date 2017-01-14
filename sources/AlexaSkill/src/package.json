@@ -1,0 +1,20 @@
+{
+  "name": "CloudVirtualSmartDoctor-AutoTriageSystem",
+  "description": "The auto triage system part of Cloud Virtual Smart Doctor.",
+  "homepage": "https://github.com/maybeken/CloudVirtualSmartDoctor-AutoTriage",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Lam Wai Kei",
+  "license": "UNLICENSED",
+  "repository":
+  {
+    "type" : "git",
+    "url" : "https://github.com/maybeken/CloudVirtualSmartDoctor-AutoTriage.git"
+  },
+  "dependencies": {
+    "alexa-sdk": "",
+    "aws-sdk": "",
+	"aws-dynamodb": "",
+	"simple-get": ""
+  }
+}

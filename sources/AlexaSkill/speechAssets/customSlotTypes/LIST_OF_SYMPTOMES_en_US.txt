@@ -1,0 +1,10 @@
+headache
+stomachache
+diarrhea
+hot
+cold
+fever
+dizzy
+pain
+throw up
+tired

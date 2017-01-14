@@ -1,0 +1,21 @@
+HKIdIntent my id number is {hkid_prefix} {hkid_number} {hkid_checkSum}
+HKIdIntent it is {hkid_prefix} {hkid_number} {hkid_checkSum}
+HKIdIntent {hkid_prefix} {hkid_number} {hkid_checkSum}
+
+PhoneIntent my phone number is {phone}
+PhoneIntent it is {phone}
+PhoneIntent {phone}
+
+NameIntent my name is {name}
+NameIntent it is {name}
+NameIntent {name}
+
+ActionIntent i want to {action}
+ActionIntent {action}
+
+SymptomsIntent i feel {symptom}
+SymptomsIntent i am having {symptom}
+SymptomsIntent {symptom}
+
+FinishedIntent i have finished
+FinishedIntent done

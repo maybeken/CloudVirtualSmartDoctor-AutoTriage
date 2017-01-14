@@ -1,0 +1,81 @@
+{
+  "intents": [
+    {
+      "intent": "HKIdIntent",
+      "slots": [
+        {
+          "name": "hkid_prefix",
+          "type": "HKID_AtoZZ"
+        },
+        {
+          "name": "hkid_number",
+          "type": "AMAZON.NUMBER"
+        },
+        {
+          "name": "hkid_checkSum",
+          "type": "HKID_CheckSum"
+        }
+      ]
+    },
+    {
+      "intent": "PhoneIntent",
+      "slots": [
+        {
+          "name": "phone",
+          "type": "AMAZON.NUMBER"
+        }
+      ]
+    },
+    {
+      "intent": "NameIntent",
+      "slots": [
+        {
+          "name": "name",
+          "type": "AMAZON.GB_FIRST_NAME"
+        }
+      ]
+    },
+    {
+      "intent": "ActionIntent",
+      "slots": [
+        {
+          "name": "action",
+          "type": "LIST_OF_ACTIONS"
+        }
+      ]
+    },
+    {
+      "intent": "SymptomsIntent",
+      "slots": [
+          {
+            "name": "symptom",
+            "type": "LIST_OF_SYMPTOMS"
+          }
+      ]
+    },
+    {
+      "intent": "FinishedIntent",
+      "slots": []
+    },
+    {
+      "intent": "AMAZON.CancelIntent",
+      "slots": []
+    },
+    {
+      "intent": "AMAZON.StopIntent",
+      "slots": []
+    },
+    {
+      "intent": "AMAZON.YesIntent",
+      "slots": []
+    },
+    {
+      "intent": "AMAZON.NoIntent",
+      "slots": []
+    },
+    {
+      "intent": "AMAZON.HelpIntent",
+      "slots": []
+    }
+  ]
+}

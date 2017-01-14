@@ -1,0 +1,191 @@
+<html>
+<head>
+    <title>Image Recognition - Auto Triage System</title>
+    <meta charset="UTF-8">
+
+    <!--Import Google Icon Font-->
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/css/materialize.min.css">
+
+    <!--Import jQuery before materialize.js-->
+    <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.1.min.js"></script>
+
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/0.97.8/js/materialize.min.js"></script>
+
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
+
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+
+    <script>
+    var app = angular.module('App', []);
+
+    function capitalizeFirstLetter(string) {
+        return string.charAt(0).toUpperCase() + string.slice(1);
+    }
+
+    app.controller('Ctrl', function($scope, $interval, $http) {
+        $scope.image = "http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/image.jpg?_ts="+Date.now();
+
+        $scope.currentItem = 0;
+        $scope.nextItem = function() {
+            if(typeof $scope.face !== "undefined" && $scope.currentItem+1 < $scope.face.length){
+                $scope.currentItem++;
+            }else{
+                $scope.currentItem = 0;
+            }
+        }
+
+        var Promise = function ($scope, $http, callback) {
+            $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json?_ts='+Date.now()).then(function(response){
+                $scope.face = response.data.faceDetails;
+            });
+
+            $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/object.json?_ts='+Date.now()).then(function(response){
+                $scope.imageObject = response.data.labels;
+            });
+
+            $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/compare.json?_ts='+Date.now()).then(function(response){
+                $scope.user = response.data;
+            });
+
+            callback();
+        };
+
+        $scope.heorshe = function(str) {
+            if (str == "Male")
+                return "He";
+            else if (str == "Female")
+                return "She";
+            else if (typeof str === "undefined")
+                return str;
+            else
+                return "This "+str.toLowerCase();
+        };
+
+        $scope.username = function(str){
+            if (str == "No Match")
+                return "Unknown User(s)";
+            else if (typeof str === "undefined")
+                return str;
+            else
+                return "There is user "+str;
+        }
+
+        $scope.isNot = function(str, bool){
+            if (bool === false)
+                return "No "+capitalizeFirstLetter(str);
+            else if (bool === true)
+                return capitalizeFirstLetter(str);
+            else
+                return "Is "+bool;
+        }
+
+        $scope.refresh = function() {
+            $scope.loading = true;
+            document.body.style.cursor='wait';
+
+            Promise($scope, $http, function(){
+                $scope.loading = false;
+                document.body.style.cursor='default';
+            });
+        };
+
+        $scope.intervalPromise = $interval(function(){
+            $scope.refresh();
+        }, 10000);
+
+        // initial load of data
+        $scope.refresh();
+    });
+
+    $(document).ready(function(){
+        // the "href" attribute of .modal-trigger must specify the modal ID that wants to be triggered
+        $('.modal').modal();
+    });
+    </script>
+    <style type="text/css">.face-thumbnail{display:flex;flex-direction:column;justify-content:space-between;margin:5px 0}.face-thumbnail .cropper{width:160px;height:160px;overflow:hidden}.face-thumbnail .green-border{border-radius:9px;border:3px solid #fff;box-shadow:0 0 1px #0cd808,0 0 2px #0cd808,0 0 6px #0cd808,0 0 12px #0cd808,inset 0 0 1px #0cd808,inset 0 0 2px #0cd808,inset 0 0 6px #0cd808,inset 0 0 12px #0cd808}</style>
+</head>
+
+<body ng-app="App">
+    <div class="container-fluid" ng-controller="Ctrl">
+        <div class="progress" style="margin-top: 0px; margin-bottom: 0px;">
+            <div class="indeterminate" ng-show="loading"></div>
+            <div class="determinate" style="width: 100%" ng-show="!loading"></div>
+        </div>
+        <nav>
+            <div class="nav-wrapper">
+                <ul id="nav-mobile" class="right hide-on-med-and-down">
+                    <li><a href="index.html">Triage Dashboard</a></li>
+                    <li><a href="index-nurse.html">Nurse Dashboard</a></li>
+                    <li><a href="recognition.html">Face Recogntion</a></li>
+                </ul>
+            </div>
+        </nav>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col s12 m7">
+                    <div class="card hoverable" style="max-width: 100%;">
+                        <div class="card-image">
+                            <img ng-src="{{ image }}" />
+                        </div>
+                        <div class="card-content">
+                            <span class="card-title grey-text text-darken-4">{{ username(user.user) }}<hr />
+                            <p ng-repeat="f in face" ng-show="currentItem == $index">{{ heorshe(f.gender.value) }} is feeling <span ng-repeat="e in f.emotions"><span ng-show="$last">and</span> {{ e.type.toLowerCase() }}<span ng-show="$last">.</span> </span></p>
+                        </div>
+                    </div>
+                </div>
+                <div class="col s12 m5">
+                    <div class="col s12 m6">
+                        <div class="card hoverable" ng-repeat="f in face" ng-show="currentItem == $index">
+                            <div class="card-content">
+                                <div class="confidence-preview">
+                                    <div class="face-thumbnail">
+                                        <div style="width: 160px; height: 160px;" class="cropper">
+                                            <div>
+                                                <img ng-src="{{ image }}" style="height: {{ 160/f.boundingBox.height }}px; width: {{ 160/f.boundingBox.width }}px; margin-top: {{ 160/f.boundingBox.height*-(f.boundingBox.top) }}px; margin-left: {{ 160/f.boundingBox.width*-(f.boundingBox.left) }}px;">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="center">
+                                    <button class="btn-floating btn-large waves-effect waves-light red" ng-click="nextItem()" ng-disabled="face.length <= 1"><i class="material-icons">skip_next</i></button>
+                                </div>
+                                <span class="card-title">In This Face:</span><hr />
+                                <p>
+                                    <div ng-repeat="(key, value) in f">
+                                        <div ng-show="f[key].confidence">
+                                            {{ isNot(key, f[key].value) }} : {{ f[key].confidence | number:0 }}%
+                                            <div class="progress z-depth-1" style="height: 12px">
+                                                <div class="determinate" style="width: {{ f[key].confidence }}%"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col s12 m6">
+                        <div class="card hoverable">
+                            <div class="card-content">
+                                <span class="card-title">This Image Contains Objects:</span><hr />
+                                <p>
+                                    <div ng-repeat="o in imageObject | orderBy: 'o.confidence'">
+                                        {{ o.name }} : {{ o.confidence | number:0 }}%
+                                        <div class="progress blue lighten-4 z-depth-1" style="height: 12px">
+                                            <div class="determinate blue" style="width: {{ o.confidence }}%"></div>
+                                        </div>
+                                    </div>
+                                </p>
+                            </div>
+                        </div>
+                </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
