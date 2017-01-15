@@ -1,5 +1,10 @@
 var AWS = require('aws-sdk');
-var s3 = new AWS.S3({accessKeyId: '', secretAccessKey: ''});
+
+if(typeof process.env.accessKeyId !== "undefined" && typeof process.env.secretAccessKey !== "undefined"){
+	var s3 = new AWS.S3({accessKeyId: process.env.accessKeyId, secretAccessKey: process.env.secretAccessKey});
+}else{
+	var s3 = new AWS.S3();
+}
 
 var states = require(__base+'states');
 
@@ -22,7 +27,7 @@ var Handler = {
 
         var _this = this;
 
-        var params = {Bucket: 'healthimage.cloudlabhk.com', Key: 'takepic.txt', Body: 'TRUE', ACL: 'public-read', ContentType: 'text/plain'};
+        var params = {Bucket: 'healthimagecloudlabhk', Key: 'takepic.txt', Body: 'TRUE', ACL: 'public-read', ContentType: 'text/plain'};
 
         s3.upload(params, function(err, data) {
             if(err) console.log("Error: S3 Upload Failure: "+err);

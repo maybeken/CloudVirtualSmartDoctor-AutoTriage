@@ -6,7 +6,7 @@ FILE_NAME=image.jpg ## Target File Name ##
 TRIGGER_FILE=takepic.txt ## Trigger File Name ##
 
 BUCKET=healthimagecloudlabhk ## AWS S3 Bucket ##
-BUCKET_TRIGGER=healthimage.cloudlabhk.com ## AWS S3 Trigger Bucket ##
+BUCKET_TRIGGER=healthimagecloudlabhk ## AWS S3 Trigger Bucket ##
 REGION=us-east-1 ## AWS S3 Region ##
 
 WAIT=10 ## Loop Interval (In seconds) ##

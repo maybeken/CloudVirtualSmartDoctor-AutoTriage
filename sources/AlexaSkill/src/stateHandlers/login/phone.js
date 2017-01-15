@@ -25,7 +25,7 @@ var Handler = Alexa.CreateStateHandler(states.LOGIN_PHONE, {
 
             var opts = {
               method: 'GET',
-              url: 'http://healthimage.cloudlabhk.com.s3-website-us-east-1.amazonaws.com/face.json',
+              url: 'http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json',
               json: true
             }
 
@@ -83,7 +83,7 @@ var Handler = Alexa.CreateStateHandler(states.LOGIN_PHONE, {
 
             var opts = {
               method: 'GET',
-              url: 'http://healthimage.cloudlabhk.com.s3-website-us-east-1.amazonaws.com/face.json',
+              url: 'http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json',
               json: true
             }
 
