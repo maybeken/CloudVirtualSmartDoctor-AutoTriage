@@ -17,11 +17,14 @@
 
     <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/angularjs/1.6.0/angular.min.js"></script>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/angular-chart.js/1.1.1/angular-chart.min.js"></script>
+
     <!--Let browser know website is optimized for mobile-->
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
 
     <script>
-    var app = angular.module('App', []);
+    var app = angular.module('App', ["chart.js"]);
 
     function capitalizeFirstLetter(string) {
         return string.charAt(0).toUpperCase() + string.slice(1);
@@ -37,11 +40,32 @@
             }else{
                 $scope.currentItem = 0;
             }
-        }
+
+            updateChart($scope, $scope.currentItem);
+        };
+
+        $scope.wHeight = window.innerHeight;
+
+        function updateChart($scope, index){
+            if(typeof $scope.face !== "undefined"){
+                var emotions = [];
+                var confidence = [];
+
+                for(var e in $scope.face[$scope.currentItem].emotions){
+                    emotions.push($scope.face[index].emotions[e].type);
+                    confidence.push($scope.face[index].emotions[e].confidence);
+                }
+
+                $scope.labels = emotions;
+                $scope.data = confidence;
+                $scope.series = ['Confidence'];
+            }
+        };
 
         var Promise = function ($scope, $http, callback) {
             $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json?_ts='+Date.now()).then(function(response){
                 $scope.face = response.data.faceDetails;
+                updateChart($scope, 0);
             });
 
             $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/object.json?_ts='+Date.now()).then(function(response){
@@ -57,31 +81,31 @@
 
         $scope.heorshe = function(str) {
             if (str == "Male")
-                return "He";
+            return "He";
             else if (str == "Female")
-                return "She";
+            return "She";
             else if (typeof str === "undefined")
-                return str;
+            return str;
             else
-                return "This "+str.toLowerCase();
+            return "This "+str.toLowerCase();
         };
 
         $scope.username = function(str){
             if (str == "No Match")
-                return "Unknown User(s)";
+            return "Unknown User(s)";
             else if (typeof str === "undefined")
-                return str;
+            return str;
             else
-                return "There is user "+str;
+            return "User: "+str.replace(/\.[^/.]+$/, "");
         }
 
         $scope.isNot = function(str, bool){
             if (bool === false)
-                return "No "+capitalizeFirstLetter(str);
+            return "No "+capitalizeFirstLetter(str);
             else if (bool === true)
-                return capitalizeFirstLetter(str);
+            return capitalizeFirstLetter(str);
             else
-                return "Is "+bool;
+            return "Is "+bool;
         }
 
         $scope.refresh = function() {
@@ -127,65 +151,68 @@
         </nav>
         <div class="container-fluid">
             <div class="row">
-                <div class="col s12 m7">
+                <div class="col s12 m6">
                     <div class="card hoverable" style="max-width: 100%;">
                         <div class="card-image">
                             <img ng-src="{{ image }}" />
                         </div>
                         <div class="card-content">
                             <span class="card-title grey-text text-darken-4">{{ username(user.user) }}<hr />
-                            <p ng-repeat="f in face" ng-show="currentItem == $index">{{ heorshe(f.gender.value) }} is feeling <span ng-repeat="e in f.emotions"><span ng-show="$last">and</span> {{ e.type.toLowerCase() }}<span ng-show="$last">.</span> </span></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="col s12 m5">
-                    <div class="col s12 m6">
-                        <div class="card hoverable" ng-repeat="f in face" ng-show="currentItem == $index">
-                            <div class="card-content">
-                                <div class="confidence-preview">
-                                    <div class="face-thumbnail">
-                                        <div style="width: 160px; height: 160px;" class="cropper">
-                                            <div>
-                                                <img ng-src="{{ image }}" style="height: {{ 160/f.boundingBox.height }}px; width: {{ 160/f.boundingBox.width }}px; margin-top: {{ 160/f.boundingBox.height*-(f.boundingBox.top) }}px; margin-left: {{ 160/f.boundingBox.width*-(f.boundingBox.left) }}px;">
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="center">
-                                    <button class="btn-floating btn-large waves-effect waves-light red" ng-click="nextItem()" ng-disabled="face.length <= 1"><i class="material-icons">skip_next</i></button>
-                                </div>
-                                <span class="card-title">In This Face:</span><hr />
-                                <p>
-                                    <div ng-repeat="(key, value) in f">
-                                        <div ng-show="f[key].confidence">
-                                            {{ isNot(key, f[key].value) }} : {{ f[key].confidence | number:0 }}%
-                                            <div class="progress z-depth-1" style="height: 12px">
-                                                <div class="determinate" style="width: {{ f[key].confidence }}%"></div>
-                                            </div>
-                                        </div>
-                                    </div>
+                                <p ng-repeat="f in face" ng-show="currentItem == $index">
+                                    {{ heorshe(f.gender.value) }} is feeling:
+                                    <canvas class="chart chart-bar" chart-data="data" chart-labels="labels" chart-series="series" height="{{ wHeight*0.05 }}"></canvas>
                                 </p>
                             </div>
                         </div>
                     </div>
                     <div class="col s12 m6">
-                        <div class="card hoverable">
-                            <div class="card-content">
-                                <span class="card-title">This Image Contains Objects:</span><hr />
-                                <p>
-                                    <div ng-repeat="o in imageObject | orderBy: 'o.confidence'">
-                                        {{ o.name }} : {{ o.confidence | number:0 }}%
-                                        <div class="progress blue lighten-4 z-depth-1" style="height: 12px">
-                                            <div class="determinate blue" style="width: {{ o.confidence }}%"></div>
+                        <div class="col s12 m6">
+                            <div class="card hoverable" ng-repeat="f in face" ng-show="currentItem == $index">
+                                <div class="card-content">
+                                    <div class="confidence-preview">
+                                        <div class="face-thumbnail">
+                                            <div style="width: 160px; height: 160px;" class="cropper">
+                                                <div>
+                                                    <img ng-src="{{ image }}" style="height: {{ 160/f.boundingBox.height }}px; width: {{ 160/f.boundingBox.width }}px; margin-top: {{ 160/f.boundingBox.height*-(f.boundingBox.top) }}px; margin-left: {{ 160/f.boundingBox.width*-(f.boundingBox.left) }}px;">
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                </p>
+                                    <div class="center">
+                                        <button class="btn-floating btn-large waves-effect waves-light red" ng-click="nextItem()" ng-disabled="face.length <= 1"><i class="material-icons">skip_next</i></button>
+                                    </div>
+                                    <span class="card-title">In This Face:</span><hr />
+                                    <p>
+                                        <div ng-repeat="(key, value) in f">
+                                            <div ng-show="f[key].confidence">
+                                                {{ isNot(key, f[key].value) }} : {{ f[key].confidence | number:0 }}%
+                                                <div class="progress z-depth-1" style="height: 12px">
+                                                    <div class="determinate" style="width: {{ f[key].confidence }}%"></div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </p>
+                                </div>
                             </div>
                         </div>
-                </div>
+                        <div class="col s12 m6">
+                            <div class="card hoverable">
+                                <div class="card-content">
+                                    <span class="card-title">This Image Contains Objects:</span><hr />
+                                    <p>
+                                        <div ng-repeat="o in imageObject | orderBy: 'o.confidence'">
+                                            {{ o.name }} : {{ o.confidence | number:0 }}%
+                                            <div class="progress blue lighten-4 z-depth-1" style="height: 12px">
+                                                <div class="determinate blue" style="width: {{ o.confidence }}%"></div>
+                                            </div>
+                                        </div>
+                                    </p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</body>
-</html>
+    </body>
+    </html>
