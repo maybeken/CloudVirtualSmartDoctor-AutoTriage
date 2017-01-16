@@ -45,6 +45,7 @@ var historyQ3State = require(__base+'stateHandlers/history/q3');
 var historyQ4State = require(__base+'stateHandlers/history/q4');
 
 var questionActionState = require(__base+'stateHandlers/questions/action');
+var questionMeasureState = require(__base+'stateHandlers/questions/measure');
 
 // Alexa Handlers
 exports.handler = function(event, context, callback) {
@@ -61,7 +62,7 @@ exports.handler = function(event, context, callback) {
         commonIntent, diagnoseIntent, loginIDState, loginPhoneState,
         registrationPromptState, registrationNameState, registrationIDState, registrationPhoneState,
         historyQ1State, historyQ2State, historyQ3State, historyQ4State,
-        questionActionState
+        questionActionState, questionMeasureState
     );
     alexa.execute();
 };

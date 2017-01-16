@@ -13,7 +13,8 @@ var states = {
     'HISTORY_Q3': '_HISTORY_Q3',
     'HISTORY_Q4': '_HISTORY_Q4',
     // Questioning States
-    'QUESTION_ACTION': '_QUESTION_ACTION'
+    'QUESTION_ACTION': '_QUESTION_ACTION',
+    'QUESTION_MEASURE': '_QUESTION_MEASURE'
 };
 
 module.exports = states;
