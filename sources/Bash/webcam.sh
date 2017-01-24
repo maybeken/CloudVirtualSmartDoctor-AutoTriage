@@ -2,6 +2,8 @@
 
 #### CONFIGURATION ####
 
+DISABLED=true ## Disable the Script ##
+
 FILE_NAME=image.jpg ## Target File Name ##
 TRIGGER_FILE=takepic.txt ## Trigger File Name ##
 
@@ -16,7 +18,13 @@ RESOLUTION=640x480 ## Target File Resolution ##
 
 TRIGGER=http://$BUCKET_TRIGGER.s3-website-$REGION.amazonaws.com/$TRIGGER_FILE
 
-while true; do
+if ($DISABLED); then
+  echo "Script disabled, please re-enable it in configuration section.";
+  echo "Line 5: DISABLED=false ## Disable the Script ##";
+  sleep 3;
+fi
+
+while (true && ! $DISABLED); do
 
   clear;
   echo "Getting trigger file...";
