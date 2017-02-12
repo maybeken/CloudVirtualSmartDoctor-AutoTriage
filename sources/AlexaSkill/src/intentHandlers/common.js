@@ -27,7 +27,7 @@ var Handler = {
 
         var _this = this;
 
-        var params = {Bucket: 'healthimagecloudlabhk', Key: 'takepic.txt', Body: 'TRUE', ACL: 'public-read', ContentType: 'text/plain'};
+        var params = {Bucket: 'iot-project-subtitle', Key: 'takepic.txt', Body: 'TRUE', ACL: 'public-read', ContentType: 'text/plain'};
 
         s3.upload(params, function(err, data) {
             if(err) console.log("Error: S3 Upload Failure: "+err);

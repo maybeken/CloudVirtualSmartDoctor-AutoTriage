@@ -31,7 +31,7 @@
     }
 
     app.controller('Ctrl', function($scope, $interval, $http) {
-        $scope.image = "http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/image.jpg?_ts="+Date.now();
+        $scope.image = "image.jpg?_ts="+Date.now();
 
         $scope.currentItem = 0;
         $scope.nextItem = function() {
@@ -63,16 +63,16 @@
         };
 
         var Promise = function ($scope, $http, callback) {
-            $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json?_ts='+Date.now()).then(function(response){
+            $http.get('face.json?_ts='+Date.now()).then(function(response){
                 $scope.face = response.data.faceDetails;
                 updateChart($scope, 0);
             });
 
-            $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/object.json?_ts='+Date.now()).then(function(response){
+            $http.get('object.json?_ts='+Date.now()).then(function(response){
                 $scope.imageObject = response.data.labels;
             });
 
-            $http.get('http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/compare.json?_ts='+Date.now()).then(function(response){
+            $http.get('compare.json?_ts='+Date.now()).then(function(response){
                 $scope.user = response.data;
             });
 
@@ -90,13 +90,15 @@
             return "This "+str.toLowerCase();
         };
 
-        $scope.username = function(str){
-            if (str == "No Match")
+        $scope.username = function(str, similarity, prefix){
+            if (str == "No Match" || similarity < 40)
             return "Unknown User(s)";
             else if (typeof str === "undefined")
             return str;
-            else
+            else if (prefix == true)
             return "User: "+str.replace(/\.[^/.]+$/, "");
+			else
+            return str.replace(/\.[^/.]+$/, "");
         }
 
         $scope.isNot = function(str, bool){
@@ -157,9 +159,9 @@
                             <img ng-src="{{ image }}" />
                         </div>
                         <div class="card-content">
-                            <span class="card-title grey-text text-darken-4">{{ username(user.user) }}<hr />
+                            <span class="card-title grey-text text-darken-4">{{ username(user.user, user.similarity, true) }}<hr />
                                 <p ng-repeat="f in face" ng-show="currentItem == $index">
-                                    {{ heorshe(f.gender.value) }} is feeling:
+                                    <span ng-show="user.user == 'No Match'">This {{ f.gender.value | lowercase }}</span><span ng-show="user.user != 'No Match'">{{ username(user.user, user.similarity, false) }}</span> is around {{ f.ageRange.low }} - {{ f.ageRange.high }} years old. {{ heorshe(f.gender.value) }} is feeling:
                                     <canvas class="chart chart-bar" chart-data="data" chart-labels="labels" chart-series="series" height="{{ wHeight*0.05 }}"></canvas>
                                 </p>
                             </div>

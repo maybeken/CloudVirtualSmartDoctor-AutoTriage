@@ -25,7 +25,7 @@ var Handler = Alexa.CreateStateHandler(states.LOGIN_PHONE, {
 
             var opts = {
               method: 'GET',
-              url: 'http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json',
+              url: 'http://iot-project-subtitle.s3-website-us-east-1.amazonaws.com/face.json',
               json: true
             }
 
@@ -33,12 +33,12 @@ var Handler = Alexa.CreateStateHandler(states.LOGIN_PHONE, {
                 if (err) throw err
                 console.log("HTTP Request Result: "+res.statusCode) // 200
 
-                _this.attributes["gender"] = data.faceDetails[0].gender.value ? data.faceDetails[0].gender.value : null;
-                _this.attributes["emotions"] = data.faceDetails[0].emotions ? data.faceDetails[0].emotions : [];
+                //_this.attributes["gender"] = data.faceDetails[0].gender.value ? data.faceDetails[0].gender.value : null;
+                _this.attributes["emotions"] = (data.faceDetails[0] && data.faceDetails[0].emotions) ? data.faceDetails[0].emotions : [];
 
                 var emotions = "";
 
-                if(_this.attributes["emotions"].length && _this.attributes["emotions"].length > 0){
+                if(_this.attributes["emotions"] && _this.attributes["emotions"].length > 0){
                     emotions += "You look ";
 
                     for(var i=0; i<_this.attributes["emotions"].length; i++){
@@ -83,7 +83,7 @@ var Handler = Alexa.CreateStateHandler(states.LOGIN_PHONE, {
 
             var opts = {
               method: 'GET',
-              url: 'http://healthimagecloudlabhk.s3-website-us-east-1.amazonaws.com/face.json',
+              url: 'http://iot-project-subtitle.s3-website-us-east-1.amazonaws.com/face.json',
               json: true
             }
 
@@ -91,12 +91,12 @@ var Handler = Alexa.CreateStateHandler(states.LOGIN_PHONE, {
                 if (err) throw err
                 console.log("HTTP Request Result: "+res.statusCode) // 200
 
-                _this.attributes["gender"] = data.faceDetails[0].gender.value ? data.faceDetails[0].gender.value : null;
-                _this.attributes["emotions"] = data.faceDetails[0].emotions ? data.faceDetails[0].emotions : [];
+                //_this.attributes["gender"] = data.faceDetails[0].gender.value ? data.faceDetails[0].gender.value : null;
+                _this.attributes["emotions"] = (data.faceDetails[0] && data.faceDetails[0].emotions) ? data.faceDetails[0].emotions : [];
 
                 var emotions = "";
 
-                if(_this.attributes["emotions"].length && _this.attributes["emotions"].length > 0){
+                if(_this.attributes["emotions"] && _this.attributes["emotions"].length > 0){
                     emotions += "You look ";
 
                     for(var i=0; i<_this.attributes["emotions"].length; i++){
