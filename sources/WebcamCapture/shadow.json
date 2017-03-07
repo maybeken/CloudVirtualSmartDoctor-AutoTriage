@@ -1,0 +1,12 @@
+{
+	"state":{
+		"desired": {
+			"takepic": true,
+			"cfg": {
+				"resolution": "1280x720",
+				"filename": "image.jpg",
+				"bucket": "iot-project-subtitle"
+			}
+		}
+	}
+}

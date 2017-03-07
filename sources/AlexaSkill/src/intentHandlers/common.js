@@ -1,10 +1,8 @@
 var AWS = require('aws-sdk');
-
-if(typeof process.env.accessKeyId !== "undefined" && typeof process.env.secretAccessKey !== "undefined"){
-	var s3 = new AWS.S3({accessKeyId: process.env.accessKeyId, secretAccessKey: process.env.secretAccessKey});
-}else{
-	var s3 = new AWS.S3();
-}
+var iotdata = new AWS.IotData({
+    region: 'ap-southeast-1',
+    endpoint: 'a9dqi8yrosh5v.iot.ap-southeast-1.amazonaws.com'
+});
 
 var states = require(__base+'states');
 
@@ -26,14 +24,25 @@ var Handler = {
         MESSAGE += this.t("ID_PROMPT")+this.t("ID_HELP");
 
         var _this = this;
-
-        var params = {Bucket: 'iot-project-subtitle', Key: 'takepic.txt', Body: 'TRUE', ACL: 'public-read', ContentType: 'text/plain'};
-
-        s3.upload(params, function(err, data) {
-            if(err) console.log("Error: S3 Upload Failure: "+err);
-
-            callback(_this);
-        });
+		
+		var payloadObj={
+			"state": {
+                "desired": {
+                    "takepic": true
+                }
+            }
+		};
+		
+		var params = {
+			payload: JSON.stringify(payloadObj), /* required */
+			thingName: 'Pi-Camera' /* required */
+		};
+		iotdata.updateThingShadow(params, function(err, data) {
+			if (err) console.log(err, err.stack); // an error occurred
+			else     console.log(data);           // successful response
+			
+			callback();
+		});
 
         var callback = function(){
             Subtitle(_this, "WELCOME_MESSAGE", "ID_PROMPT", "ID_HELP",

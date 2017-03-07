@@ -31,7 +31,7 @@
     }
 
     app.controller('Ctrl', function($scope, $interval, $http) {
-        $scope.image = "image.jpg?_ts="+Date.now();
+		$scope.image = "image.jpg?_ts="+Date.now();
 
         $scope.currentItem = 0;
         $scope.nextItem = function() {
@@ -64,7 +64,14 @@
 
         var Promise = function ($scope, $http, callback) {
             $http.get('face.json?_ts='+Date.now()).then(function(response){
-                $scope.face = response.data.faceDetails;
+				if($scope.face != response.data.faceDetails)
+				{
+					$scope.image = "image.jpg?_ts="+Date.now();
+					$scope.face = response.data.faceDetails;
+				}else{
+					$scope.face = response.data.faceDetails;
+				}
+				
                 updateChart($scope, 0);
             });
 
@@ -96,7 +103,7 @@
             else if (typeof str === "undefined")
             return str;
             else if (prefix == true)
-            return "User: "+str.replace(/\.[^/.]+$/, "");
+            return "Patient 病人身份: "+str.replace(/\.[^/.]+$/, "");
 			else
             return str.replace(/\.[^/.]+$/, "");
         }
@@ -122,7 +129,7 @@
 
         $scope.intervalPromise = $interval(function(){
             $scope.refresh();
-        }, 30000);
+        }, 10000);
 
         // initial load of data
         $scope.refresh();
@@ -161,7 +168,8 @@
                         <div class="card-content">
                             <span class="card-title grey-text text-darken-4">{{ username(user.user, user.similarity, true) }}<hr />
                                 <p ng-repeat="f in face" ng-show="currentItem == $index">
-                                    <span ng-show="user.user == 'No Match'">This {{ f.gender.value | lowercase }}</span><span ng-show="user.user != 'No Match'">{{ username(user.user, user.similarity, false) }}</span> is around {{ f.ageRange.low }} - {{ f.ageRange.high }} years old. {{ heorshe(f.gender.value) }} is feeling:
+                                    <span ng-show="user.user == 'No Match'">This {{ f.gender.value | lowercase }}</span><span ng-show="user.user != 'No Match'">{{ username(user.user, user.similarity, false) }}</span> is around {{ f.ageRange.low }} - {{ f.ageRange.high }} years old. {{ heorshe(f.gender.value) }} is feeling:<br />
+                                    <span ng-show="user.user == 'No Match'"> 他</span><span ng-show="user.user != 'No Match'">{{ username(user.user, user.similarity, false) }}</span> 的年齡約 {{ f.ageRange.low }} 至 {{ f.ageRange.high }} 歲。他覺得:
                                     <canvas class="chart chart-bar" chart-data="data" chart-labels="labels" chart-series="series" height="{{ wHeight*0.05 }}"></canvas>
                                 </p>
                             </div>
@@ -183,11 +191,11 @@
                                     <div class="center">
                                         <button class="btn-floating btn-large waves-effect waves-light red" ng-click="nextItem()" ng-disabled="face.length <= 1"><i class="material-icons">skip_next</i></button>
                                     </div>
-                                    <span class="card-title">In This Face:</span><hr />
+                                    <span class="card-title">Facial Characteristics:<br />他的面容特徵</span><hr />
                                     <p>
                                         <div ng-repeat="(key, value) in f">
                                             <div ng-show="f[key].confidence">
-                                                {{ isNot(key, f[key].value) }} : {{ f[key].confidence | number:0 }}%
+                                                <h5>{{ isNot(key, f[key].value) }} : {{ f[key].confidence | number:0 }}%</h5>
                                                 <div class="progress z-depth-1" style="height: 12px">
                                                     <div class="determinate" style="width: {{ f[key].confidence }}%"></div>
                                                 </div>
@@ -200,10 +208,10 @@
                         <div class="col s12 m6">
                             <div class="card hoverable">
                                 <div class="card-content">
-                                    <span class="card-title">This Image Contains Objects:</span><hr />
+                                    <span class="card-title">This Image Contains Objects:<br />在這張相片中有這些物件：</span><hr />
                                     <p>
                                         <div ng-repeat="o in imageObject | orderBy: 'o.confidence'">
-                                            {{ o.name }} : {{ o.confidence | number:0 }}%
+                                            <h5>{{ o.name }} : {{ o.confidence | number:0 }}%</h5>
                                             <div class="progress blue lighten-4 z-depth-1" style="height: 12px">
                                                 <div class="determinate blue" style="width: {{ o.confidence }}%"></div>
                                             </div>

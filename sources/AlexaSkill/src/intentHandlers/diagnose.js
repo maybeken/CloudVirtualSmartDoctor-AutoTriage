@@ -13,7 +13,7 @@ var Subtitle = require("ar-subtitle-support");
 var Handler = {
 
     'DiagnoseIntent': function() {
-        var action = "";
+        var action = "TAKE_REST";
 
         this.attributes["useThermometer"] = false;
         this.attributes["useOximeter"] = false;
@@ -34,7 +34,6 @@ var Handler = {
                     action = "HEAT_PACK";
                 }else{
                     this.attributes["seriousness"] += 1;
-                    action = "TAKE_REST";
                 }
             }else if(symptom == "feel tired"){
                 if(this.attributes["spO2"] < 80){
@@ -60,7 +59,6 @@ var Handler = {
                 }
             }else{
                 this.attributes["seriousness"] += 1;
-                action = "TAKE_REST";
             }
         }
 

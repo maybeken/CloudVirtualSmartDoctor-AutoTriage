@@ -1,0 +1,17 @@
+{
+  "name": "Webcam-Capture",
+  "description": "Cloud Virtual Smart Doctor",
+  "homepage": "https://github.com/maybeken",
+  "version": "1.0.0",
+  "main": "main.js",
+  "author": "Lam Wai Kei",
+  "license": "UNLICENSED",
+  "repository":
+  {
+    "type" : "git",
+    "url" : "https://github.com/maybeken/CloudVirtualSmartDoctor-AutoTriage.git"
+  },
+  "dependencies": {
+    "aws-iot-device-sdk": ""
+  }
+}
