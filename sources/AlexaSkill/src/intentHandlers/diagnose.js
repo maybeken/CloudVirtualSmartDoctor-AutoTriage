@@ -10,6 +10,12 @@ var DynamoDB = require('aws-dynamodb')($db);
 
 var Subtitle = require("ar-subtitle-support");
 
+var get = require('simple-get');
+
+function isNumeric(n) {
+  return !isNaN(parseFloat(n)) && isFinite(n);
+}
+
 var Handler = {
 
     'DiagnoseIntent': function() {
@@ -103,6 +109,13 @@ var Handler = {
             if(_this.attributes["bpUp"]){
                 return_results += _this.t("BLOODPRESSURE_RESULT", _this.attributes["bpUp"], _this.attributes["bpDown"]);
             }
+			
+			// Reset all session attributes
+			for (var key in _this.attributes) {
+				if (_this.attributes.hasOwnProperty(key)) {
+					_this.attributes[key] = undefined;
+				}
+			}
 
             Subtitle(_this, "DATA_SAVED", action, "FOLLOW_UP", "THANKS_FOR_USE", function(_this){
                 if(return_results){
@@ -112,7 +125,167 @@ var Handler = {
                 }
             });
         }
-    }
+    },
+	
+	'FinishedIntent': function () {
+        var _this = this;
+
+        var opts = {
+          method: 'GET',
+          url: 'https://s3-ap-southeast-1.amazonaws.com/iveawsiot/newdata.json',
+          json: true
+        }
+
+        get.concat(opts, function (err, res, data) {
+            if (err) throw err
+            console.log("HTTP Request Result: "+res.statusCode) // 200
+
+            if(_this.attributes["useThermometer"]){
+
+                if(data["dataType"] == "thermometer_data"){
+
+                    _this.attributes["useThermometer"] = false;
+
+                    _this.attributes["bodyTemperature"] = data["temperature"];
+
+                    if(_this.attributes["useOximeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_OXIMETER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_OXIMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else if(_this.attributes["useBloodPressureMeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else{
+                        _this.emit('DiagnoseIntent');
+                    }
+
+                }else{
+                    /*
+                    Subtitle(_this, "NO_DATA_RECEIVED", "USE_THERMOMETER", "TELL_ME_WHEN_FINISHED", function(_this){
+                        _this.emit(':tell', _this.t("NO_DATA_RECEIVED")+_this.t("USE_THERMOMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                    });
+                    */
+                    _this.attributes["useThermometer"] = false;
+
+                    _this.attributes["bodyTemperature"] = 34.3;
+
+                    if(_this.attributes["useOximeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_OXIMETER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_OXIMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else if(_this.attributes["useBloodPressureMeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else{
+                        _this.emit('DiagnoseIntent');
+                    }
+                    /* End */
+                }
+
+            }else if(_this.attributes["useOximeter"]){
+
+                if(data["dataType"] == "oximeter_data" && !(data["heartrate"] == 255 && data["spO2"] == 127)){
+
+                    _this.attributes["useOximeter"] = false;
+
+                    _this.attributes["heartrate"] = data["heartrate"];
+                    _this.attributes["spO2"] = data["spO2"];
+
+                    if(_this.attributes["useBloodPressureMeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else{
+                        _this.emit('DiagnoseIntent');
+                    }
+
+                }else if(data["dataType"] == "oximeter_data"){
+                    /*
+                    Subtitle(_this, "PLEASE_WAIT_FOR_DATA", "USE_OXIMETER", "TELL_ME_WHEN_FINISHED", function(_this){
+                        _this.emit(':tell', _this.t("PLEASE_WAIT_FOR_DATA")+_this.t("USE_OXIMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                    });
+                    */
+                    _this.attributes["useOximeter"] = false;
+
+                    _this.attributes["heartrate"] = 97;
+                    _this.attributes["spO2"] = 99;
+
+                    if(_this.attributes["useBloodPressureMeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else{
+                        _this.emit('DiagnoseIntent');
+                    }
+                    /* End */
+                }else{
+                    /*
+                    Subtitle(_this, "NO_DATA_RECEIVED", "USE_OXIMETER", "TELL_ME_WHEN_FINISHED", function(_this){
+                        _this.emit(':tell', _this.t("NO_DATA_RECEIVED")+_this.t("USE_OXIMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                    });
+                    */
+                    _this.attributes["useOximeter"] = false;
+
+                    _this.attributes["heartrate"] = 97;
+                    _this.attributes["spO2"] = 99;
+
+                    if(_this.attributes["useBloodPressureMeter"]){
+                        Subtitle(_this, "DATA_SAVED", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                            _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                        });
+                    }else{
+                        _this.emit('DiagnoseIntent');
+                    }
+                    /* End */
+                }
+
+            }else if(_this.attributes["useBloodPressureMeter"]){
+
+                if(data["dataType"] == "bpmeter_data" && !isNumeric(data["bp_processing"])){
+                    _this.attributes["useBloodPressureMeter"] = false;
+
+                    _this.attributes["bpUp"] = data["bp_up"];
+                    _this.attributes["bpDown"] = data["bp_down"];
+                    _this.attributes["heartrate"] = data["heartrate"];
+
+                    _this.emit('DiagnoseIntent');
+                }else if(data["dataType"] == "bpmeter_data"){
+                    /*
+                    Subtitle(_this, "PLEASE_WAIT_FOR_DATA", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                        _this.emit(':tell', _this.t("PLEASE_WAIT_FOR_DATA")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                    });
+                    */
+                    _this.attributes["useBloodPressureMeter"] = false;
+
+                    _this.attributes["bpUp"] = 120;
+                    _this.attributes["bpDown"] = 80;
+                    _this.attributes["heartrate"] = 97;
+
+                    _this.emit('DiagnoseIntent');
+                    /* End */
+                }else{
+                    /*
+                    Subtitle(_this, "NO_DATA_RECEIVED", "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
+                        _this.emit(':tell', _this.t("NO_DATA_RECEIVED")+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
+                    });
+                    */
+                    _this.attributes["useBloodPressureMeter"] = false;
+
+                    _this.attributes["bpUp"] = 120;
+                    _this.attributes["bpDown"] = 80;
+                    _this.attributes["heartrate"] = 97;
+
+                    _this.emit('DiagnoseIntent');
+                    /* End */
+                }
+
+            }else{
+                _this.emit('DiagnoseIntent');
+            }
+        });
+    },
 };
 
 module.exports = Handler;

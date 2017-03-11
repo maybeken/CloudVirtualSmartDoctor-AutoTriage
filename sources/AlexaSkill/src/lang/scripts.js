@@ -44,7 +44,7 @@ var Scripts = {
         "USE_OXIMETER": "Please use the Oximeter on the table to measure your pulse and oxygen level. ",
         "USE_THERMOMETER": "Please use the Thermometer on the table to measure your body temperature. ",
         "USE_BLOOD_PRESSURE_METER": "Please use the Blood pressure meter to measure your blood pressure. ",
-        "TELL_ME_WHEN_FINISHED": "Tell me when you are done. ",
+        "TELL_ME_WHEN_FINISHED": "Please call 'Ask doctor for finishing measure' when you are done. ",
         "NO_DATA_RECEIVED": "No related data was received, please follow the instruction on screen to make the measure again. ",
         "PLEASE_WAIT_FOR_DATA": "Data are being measured, please wait for a moment until the measure is ready. ",
         "BODYTEMPERATURE_RESULT": "Your body temperature is %i degree celsius, ",
@@ -101,7 +101,7 @@ var Scripts = {
         "USE_OXIMETER": "請使用桌上的血氧計來測量你的脈搏和血氧水平 ",
         "USE_THERMOMETER": "請使用桌上的溫度計來測量你的體溫 ",
         "USE_BLOOD_PRESSURE_METER": "請使用桌上的血壓計來測量你的血壓水平 ",
-        "TELL_ME_WHEN_FINISHED": "完成後請知悉我 ",
+        "TELL_ME_WHEN_FINISHED": "完成後請說 'Ask doctor for finishing measure' 知悉我 ",
         "NO_DATA_RECEIVED": "未能收到相關數據, 請依照顯示屏上的方法重新測量 ",
         "PLEASE_WAIT_FOR_DATA": "測量進行中, 請等候測量完成 ",
         // Result Section

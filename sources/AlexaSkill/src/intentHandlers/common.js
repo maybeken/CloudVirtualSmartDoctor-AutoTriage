@@ -11,45 +11,52 @@ var Subtitle = require("ar-subtitle-support");
 var Handler = {
 
     'NewSession': function() {
-        // Reset all session attributes
-        for (var key in this.attributes) {
-            if (this.attributes.hasOwnProperty(key)) {
-                this.attributes[key] = undefined;
-            }
-        }
-
-        this.handler.state = states.LOGIN_ID;
-        var MESSAGE = this.t("WELCOME_MESSAGE", this.t("APP_NAME"));
-
-        MESSAGE += this.t("ID_PROMPT")+this.t("ID_HELP");
-
-        var _this = this;
+		console.log(this.attributes);
 		
-		var payloadObj={
-			"state": {
-                "desired": {
-                    "takepic": true
-                }
-            }
-		};
-		
-		var params = {
-			payload: JSON.stringify(payloadObj), /* required */
-			thingName: 'Pi-Camera' /* required */
-		};
-		iotdata.updateThingShadow(params, function(err, data) {
-			if (err) console.log(err, err.stack); // an error occurred
-			else     console.log(data);           // successful response
+		if(this.attributes["seriousness"] != -1){
+			// Reset all session attributes
+			for (var key in this.attributes) {
+				if (this.attributes.hasOwnProperty(key)) {
+					this.attributes[key] = undefined;
+				}
+			}
 			
-			callback();
-		});
+			this.handler.state = states.LOGIN_ID;
+			var MESSAGE = this.t("WELCOME_MESSAGE", this.t("APP_NAME"));
 
-        var callback = function(){
-            Subtitle(_this, "WELCOME_MESSAGE", "ID_PROMPT", "ID_HELP",
-            function(_this){
-                _this.emit(':ask', MESSAGE, '');
-            });
-        }
+			MESSAGE += this.t("ID_PROMPT")+this.t("ID_HELP");
+
+			var _this = this;
+			
+			var payloadObj={
+				"state": {
+					"desired": {
+						"takepic": true
+					}
+				}
+			};
+			
+			var params = {
+				payload: JSON.stringify(payloadObj), /* required */
+				thingName: 'Pi-Camera' /* required */
+			};
+			iotdata.updateThingShadow(params, function(err, data) {
+				if (err) console.log(err, err.stack); // an error occurred
+				else     console.log(data);           // successful response
+				
+				callback();
+			});
+
+			var callback = function(){
+				Subtitle(_this, "WELCOME_MESSAGE", "ID_PROMPT", "ID_HELP",
+				function(_this){
+					_this.emit(':ask', MESSAGE, '');
+				});
+			}
+		}else{
+			this.handler.state = states.QUESTION_MEASURE;
+			this.emit('FinishedIntent');
+		}
     },
 
     'Goodbye': function() {

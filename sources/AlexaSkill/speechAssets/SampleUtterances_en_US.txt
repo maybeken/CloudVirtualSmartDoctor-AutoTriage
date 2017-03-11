@@ -14,8 +14,13 @@ ActionIntent i want to {action}
 ActionIntent {action}
 
 SymptomsIntent i feel {symptom}
+SymptomsIntent i feel {symptom} today
+SymptomsIntent i am feeling {symptom}
 SymptomsIntent i am having {symptom}
 SymptomsIntent {symptom}
 
-FinishedIntent i have finished
+FinishedIntent finish
 FinishedIntent done
+FinishedIntent okay
+FinishedIntent finished
+FinishedIntent finishing measure

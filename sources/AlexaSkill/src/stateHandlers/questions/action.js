@@ -89,20 +89,20 @@ var Handler = Alexa.CreateStateHandler(states.QUESTION_ACTION, {
                 symptoms += symptom+" ";
             }
         }
-
-        this.handler.state = states.QUESTION_MEASURE;
+		
+		this.attributes["seriousness"] = -1;
 
         if(this.attributes["useThermometer"]){
             Subtitle(this, "DATA_SAVED", "SYMPTOM_CONFIRM", symptoms, "USE_THERMOMETER", "TELL_ME_WHEN_FINISHED", function(_this){
-                _this.emit(':ask', _this.t("DATA_SAVED")+_this.t("SYMPTOM_CONFIRM", symptoms)+_this.t("USE_THERMOMETER")+_this.t("TELL_ME_WHEN_FINISHED"), '');
+                _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("SYMPTOM_CONFIRM", symptoms)+_this.t("USE_THERMOMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
             });
         }else if(this.attributes["useOximeter"]){
             Subtitle(this, "DATA_SAVED", "SYMPTOM_CONFIRM", symptoms, "USE_OXIMETER", "TELL_ME_WHEN_FINISHED", function(_this){
-                _this.emit(':ask', _this.t("DATA_SAVED")+_this.t("SYMPTOM_CONFIRM", symptoms)+_this.t("USE_OXIMETER")+_this.t("TELL_ME_WHEN_FINISHED"), '');
+                _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("SYMPTOM_CONFIRM", symptoms)+_this.t("USE_OXIMETER")+_this.t("TELL_ME_WHEN_FINISHED"));
             });
         }else if(this.attributes["useBloodPressureMeter"]){
             Subtitle(this, "DATA_SAVED", "SYMPTOM_CONFIRM", symptoms, "USE_BLOOD_PRESSURE_METER", "TELL_ME_WHEN_FINISHED", function(_this){
-                _this.emit(':ask', _this.t("DATA_SAVED")+_this.t("SYMPTOM_CONFIRM", symptoms)+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"), '');
+                _this.emit(':tell', _this.t("DATA_SAVED")+_this.t("SYMPTOM_CONFIRM", symptoms)+_this.t("USE_BLOOD_PRESSURE_METER")+_this.t("TELL_ME_WHEN_FINISHED"));
             });
         }else{
             this.emit('DiagnoseIntent');
